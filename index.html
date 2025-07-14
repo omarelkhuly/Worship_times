@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+        المخطط العبادي الأسبوعي</title>
+    <link rel="icon" type="image/png" href="images/favicon.png" />
+
+    <link href="css/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body class="bg-light">
+    <div class="container py-5">
+        <h2 class="mb-4 text-center text-primary">
+            <i class="fas fa-mosque text-primary"></i>
+            المخطط العبادي الأسبوعي
+        </h2>
+
+        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4 no-print">
+            <button class="btn btn-danger" onclick="startNewWeek()">
+                <i class="bi bi-arrow-clockwise"></i> بدء أسبوع جديد
+            </button>
+            <button class="btn btn-info text-white" onclick="showResults()">
+                <i class="bi bi-file-earmark-bar-graph"></i> عرض النتائج
+            </button>
+            <button class="btn btn-success" onclick="saveWeek()">
+                <i class="bi bi-save"></i> حفظ الأسبوع
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-center flex-wrap gap-2 mb-4 no-print">
+            <select class="form-select w-auto" id="reportSelect" onchange="displaySavedReport()">
+                <option value="">اختر تقرير أسبوع...</option>
+            </select>
+            <button class="btn btn-secondary" onclick="showSelectedReport()">
+                <i class="bi bi-journal-text"></i> عرض التقرير المحدد
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>الأيام</th>
+                        <th>المدة</th>
+                        <th>الصلاة في وقتها</th>
+                        <th>السنن</th>
+                        <th>صلاة الفجر</th>
+                        <th>ختم الصلاة</th>
+                        <th>أذكار الصباح والمساء</th>
+                        <th>صلاة الضحى</th>
+                        <th>قيام الليل</th>
+                        <th>الإستغفار</th>
+                        <th>الذكر</th>
+                        <th>قراءة القرآن الكريم</th>
+                        <th>الدعاء</th>
+                        <th>أذكار النوم</th>
+                        <th>سورة تبارك</th>
+                        <th>سورة الكهف</th>
+                    </tr>
+                </thead>
+                <tbody id="planner-body"></tbody>
+            </table>
+        </div>
+
+        <div id="resultsContainer" class="mt-5" style="display: none;">
+            <h3 class="text-center text-primary mb-3">تقارير الأسابيع المحفوظة</h3>
+            <div id="reportsList"></div>
+            <div class="d-flex justify-content-center gap-2 mt-4 no-print">
+                <button class="btn btn-primary print_style" onclick="window.print()">طباعة</button>
+                <button class="btn btn-danger print_style" onclick="clearAllReports()">حذف جميع التقارير</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="noteModalLabel">إضافة ملاحظة</h5>
+                    <button type="button" class="btn-close mr_style" data-bs-dismiss="modal"
+                        aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <textarea id="modalNoteInput" class="form-control" rows="4"
+                        placeholder="اكتب ملاحظتك هنا..."></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إغلاق</button>
+                    <button type="button" class="btn btn-primary" onclick="saveNote()">حفظ</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        const weekData = [
+            { day: "السبت", start: "05:00", end: "22:00" },
+            { day: "الأحد", start: "05:00", end: "22:00" },
+            { day: "الإثنين", start: "05:00", end: "22:00" },
+            { day: "الثلاثاء", start: "05:00", end: "22:00" },
+            { day: "الأربعاء", start: "05:00", end: "22:00" },
+            { day: "الخميس", start: "05:00", end: "22:00" },
+            { day: "الجمعة", start: "05:00", end: "22:00" },
+        ];
+
+        const topics = [
+            "الصلاة في وقتها", "السنن", "صلاة الفجر", "ختم الصلاة",
+            "أذكار الصباح والمساء", "صلاة الضحى", "قيام الليل", "الإستغفار",
+            "الذكر", "قراءة القرآن الكريم", "الدعاء", "أذكار النوم",
+            "سورة تبارك", "سورة الكهف"
+        ];
+
+        let noteIndex = ""; // To store the ID of the note being edited
+
+        function formatTime(timeStr) {
+            const [h, m] = timeStr.split(":");
+            return `${h}:${m}`;
+        }
+
+        // Function to load the planner table, restoring from localStorage if data exists for the current week
+        function loadTable(data = null) {
+            const tbody = document.getElementById("planner-body");
+            tbody.innerHTML = "";
+
+            const currentWeekData = data || JSON.parse(localStorage.getItem("currentWeekPlanner")) || {};
+
+            for (let i = 0; i < weekData.length; i++) {
+                const day = weekData[i];
+                let row = `<tr><td>${day.day}</td><td>من ${formatTime(day.start)} إلى ${formatTime(day.end)}</td>`;
+
+                for (let j = 0; j < topics.length; j++) {
+                    const checkboxId = `check${i}_${j}`;
+                    const noteId = `noteText${i}_${j}`;
+                    const savedChecked = currentWeekData[checkboxId] ? "checked" : "";
+                    const savedNotes = currentWeekData[noteId] || "لا توجد ملاحظات بعد";
+
+                    row += `
+            <td>
+              <input type="checkbox" class="form-check-input checkbox_style" id="${checkboxId}" ${savedChecked}>
+              <div id="${noteId}" class="note-text text-muted small mt-1">${savedNotes}</div>
+              <button class="btn btn-outline-primary btn-sm mt-1" onclick="openModal('${noteId}')">✏️</button>
+            </td>`;
+                }
+                row += "</tr>";
+                tbody.innerHTML += row;
+            }
+        }
+
+        // Function to open the note modal
+        function openModal(noteId) {
+            noteIndex = noteId;
+            const noteBox = document.getElementById(noteId);
+            const existingNotes = Array.from(noteBox.querySelectorAll('.note-content')).map(span => span.dataset.fullNote).join('\n');
+            document.getElementById("modalNoteInput").value = existingNotes;
+            new bootstrap.Modal(document.getElementById("noteModal")).show();
+        }
+
+        // Function to save a note
+        function saveNote() {
+            const text = document.getElementById("modalNoteInput").value.trim();
+            const noteBox = document.getElementById(noteIndex);
+
+            if (!text) {
+                noteBox.innerHTML = "لا توجد ملاحظات بعد";
+                bootstrap.Modal.getInstance(document.getElementById("noteModal")).hide();
+                return;
+            }
+
+            const notesArray = text.split('\n').filter(n => n.trim() !== '');
+            if (notesArray.length > 0) {
+                noteBox.innerHTML = ''; // Clear existing notes
+                notesArray.forEach(note => {
+                    noteBox.innerHTML += `
+            <span class="d-block text-success note-content d-flex justify-content-between align-items-center mt-1" data-full-note="${note}">
+              <span>${note}</span>
+              <button class="btn btn-sm btn-danger py-0 px-2" onclick="deleteNote(this)">🗑️</button>
+            </span>`;
+                });
+            } else {
+                noteBox.innerHTML = "لا توجد ملاحظات بعد";
+            }
+
+            bootstrap.Modal.getInstance(document.getElementById("noteModal")).hide();
+        }
+
+        // Function to delete an individual note
+        function deleteNote(buttonElement) {
+            const noteSpan = buttonElement.closest('.note-content');
+            const noteBox = noteSpan.parentElement;
+            noteSpan.remove();
+            if (!noteBox.querySelector('.note-content')) {
+                noteBox.innerHTML = 'لا توجد ملاحظات بعد';
+            }
+        }
+
+        // Function to save the current week's data to local storage
+        function saveWeek() {
+            const currentWeekData = {};
+            for (let i = 0; i < weekData.length; i++) {
+                for (let j = 0; j < topics.length; j++) {
+                    const checkboxId = `check${i}_${j}`;
+                    const noteId = `noteText${i}_${j}`;
+                    const checkbox = document.getElementById(checkboxId);
+                    const noteBox = document.getElementById(noteId);
+
+                    if (checkbox) {
+                        currentWeekData[checkboxId] = checkbox.checked;
+                    }
+                    if (noteBox) {
+                        const notes = Array.from(noteBox.querySelectorAll('.note-content')).map(span => span.dataset.fullNote);
+                        currentWeekData[noteId] = notes.length > 0 ? notes.join('\n') : "لا توجد ملاحظات بعد";
+                    }
+                }
+            }
+            localStorage.setItem("currentWeekPlanner", JSON.stringify(currentWeekData));
+
+            // Save as a historical report
+            const savedReports = JSON.parse(localStorage.getItem("weeklyReports")) || [];
+            const reportDate = new Date().toLocaleDateString('ar-EG', { year: 'numeric', month: 'long', day: 'numeric' });
+            savedReports.push({
+                date: reportDate,
+                data: currentWeekData
+            });
+            localStorage.setItem("weeklyReports", JSON.stringify(savedReports));
+            updateReportSelect(); // Update the dropdown with the new report
+            alert("تم حفظ الأسبوع بنجاح!");
+        }
+
+        // Function to display results/reports
+        function showResults() {
+            const resultsContainer = document.getElementById("resultsContainer");
+            resultsContainer.style.display = "block";
+            displayAllReports();
+        }
+
+        // Function to start a new week (clear UI, keep localStorage data)
+        function startNewWeek() {
+            if (confirm("هل أنت متأكد أنك تريد بدء أسبوع جديد؟ سيتم مسح البيانات من الواجهة الحالية فقط.")) {
+                localStorage.removeItem("currentWeekPlanner"); // Clear current week data from local storage
+                loadTable(); // Reload an empty table
+                document.getElementById("resultsContainer").style.display = "none"; // Hide results
+            }
+        }
+
+        // Function to get the current week's dates
+        function getWeekDates() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0 for Sunday, 1 for Monday, etc.
+            const startOfWeek = new Date(today);
+            startOfWeek.setDate(today.getDate() - dayOfWeek); // Adjust to start of the week (Sunday)
+
+            const weekDates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(startOfWeek);
+                date.setDate(startOfWeek.getDate() + i);
+                weekDates.push(date.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }));
+            }
+            return weekDates;
+        }
+
+        // Function to display all saved reports
+        function displayAllReports() {
+            const reportsList = document.getElementById("reportsList");
+            reportsList.innerHTML = "";
+            const savedReports = JSON.parse(localStorage.getItem("weeklyReports")) || [];
+
+            if (savedReports.length === 0) {
+                reportsList.innerHTML = "<p class='text-center text-muted'>لا توجد تقارير محفوظة بعد.</p>";
+                return;
+            }
+
+            savedReports.forEach((report, index) => {
+                const reportDiv = document.createElement("div");
+                reportDiv.classList.add("card", "mb-4", "p-3");
+                reportDiv.innerHTML = `<h5 class="card-title text-primary">تقرير الأسبوع بتاريخ: ${report.date}</h5>`;
+
+                const reportTable = document.createElement("table");
+                reportTable.classList.add("table", "table-bordered", "table-sm");
+                let tableHTML = `
+          <thead>
+            <tr>
+              <th>اليوم</th>
+              <th>التاريخ</th>
+              ${topics.map(topic => `<th>${topic}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+        `;
+
+                const weekDates = getWeekDates(); // Get the current week's dates for display
+
+                for (let i = 0; i < weekData.length; i++) {
+                    tableHTML += `<tr><td>${weekData[i].day}</td><td>${weekDates[i]}</td>`;
+                    for (let j = 0; j < topics.length; j++) {
+                        const checkboxId = `check${i}_${j}`;
+                        const noteId = `noteText${i}_${j}`;
+                        const isChecked = report.data[checkboxId] ? "✅" : "❌";
+                        const notes = report.data[noteId] && report.data[noteId] !== "لا توجد ملاحظات بعد" ? `<br><small class="text-muted">${report.data[noteId].replace(/\n/g, '<br>')}</small>` : "";
+                        tableHTML += `<td>${isChecked}${notes}</td>`;
+                    }
+                    tableHTML += `</tr>`;
+                }
+                tableHTML += `</tbody>`;
+                reportTable.innerHTML = tableHTML;
+                reportDiv.appendChild(reportTable);
+
+                // Add delete button for individual report
+                const deleteBtn = document.createElement('button');
+                deleteBtn.classList.add('btn', 'btn-sm', 'btn-danger', 'mt-2', 'no-print');
+                deleteBtn.textContent = 'حذف هذا التقرير';
+                deleteBtn.onclick = () => deleteReport(index);
+                reportDiv.appendChild(deleteBtn);
+
+                reportsList.appendChild(reportDiv);
+            });
+        }
+
+        // Function to clear all saved reports from local storage
+        function clearAllReports() {
+            if (confirm("هل أنت متأكد أنك تريد حذف جميع التقارير المحفوظة؟")) {
+                localStorage.removeItem("weeklyReports");
+                displayAllReports(); // Refresh the display
+                updateReportSelect(); // Clear the select options
+                alert("تم حذف جميع التقارير.");
+            }
+        }
+
+        // Function to delete a specific report by its index
+        function deleteReport(indexToDelete) {
+            const savedReports = JSON.parse(localStorage.getItem("weeklyReports")) || [];
+            if (indexToDelete >= 0 && indexToDelete < savedReports.length) {
+                savedReports.splice(indexToDelete, 1);
+                localStorage.setItem("weeklyReports", JSON.stringify(savedReports));
+                displayAllReports(); // Refresh the display
+                updateReportSelect(); // Refresh the select options
+                alert("تم حذف التقرير بنجاح.");
+            }
+        }
+
+        // Function to populate the report select dropdown
+        function updateReportSelect() {
+            const reportSelect = document.getElementById("reportSelect");
+            reportSelect.innerHTML = '<option value="">اختر تقرير أسبوع...</option>';
+            const savedReports = JSON.parse(localStorage.getItem("weeklyReports")) || [];
+            savedReports.forEach((report, index) => {
+                const option = document.createElement("option");
+                option.value = index;
+                option.textContent = `تقرير بتاريخ: ${report.date}`;
+                reportSelect.appendChild(option);
+            });
+        }
+
+        // Function to display a selected saved report
+        function displaySavedReport() {
+            const reportSelect = document.getElementById("reportSelect");
+            const selectedIndex = reportSelect.value;
+            const reportsList = document.getElementById("reportsList");
+            reportsList.innerHTML = ""; // Clear existing reports
+
+            if (selectedIndex === "") {
+                return; // No report selected
+            }
+
+            const savedReports = JSON.parse(localStorage.getItem("weeklyReports")) || [];
+            const selectedReport = savedReports[selectedIndex];
+
+            if (selectedReport) {
+                const reportDiv = document.createElement("div");
+                reportDiv.classList.add("card", "mb-4", "p-3");
+                reportDiv.innerHTML = `<h5 class="card-title text-primary">تقرير الأسبوع بتاريخ: ${selectedReport.date}</h5>`;
+
+                const reportTable = document.createElement("table");
+                reportTable.classList.add("table", "table-bordered", "table-sm");
+                let tableHTML = `
+          <thead>
+            <tr>
+              <th>اليوم</th>
+              <th>التاريخ</th>
+              ${topics.map(topic => `<th>${topic}</th>`).join('')}
+            </tr>
+          </thead>
+          <tbody>
+        `;
+
+                const weekDates = getWeekDates(); // Get the current week's dates for display
+
+                for (let i = 0; i < weekData.length; i++) {
+                    tableHTML += `<tr><td>${weekData[i].day}</td><td>${weekDates[i]}</td>`;
+                    for (let j = 0; j < topics.length; j++) {
+                        const checkboxId = `check${i}_${j}`;
+                        const noteId = `noteText${i}_${j}`;
+                        const isChecked = selectedReport.data[checkboxId] ? "✅" : "❌";
+                        const notes = selectedReport.data[noteId] && selectedReport.data[noteId] !== "لا توجد ملاحظات بعد" ? `<br><small class="text-muted">${selectedReport.data[noteId].replace(/\n/g, '<br>')}</small>` : "";
+                        tableHTML += `<td>${isChecked}${notes}</td>`;
+                    }
+                    tableHTML += `</tr>`;
+                }
+                tableHTML += `</tbody>`;
+                reportTable.innerHTML = tableHTML;
+                reportDiv.appendChild(reportTable);
+                reportsList.appendChild(reportDiv);
+                document.getElementById("resultsContainer").style.display = "block";
+            }
+        }
+
+        // Function to show the selected report (called by button click)
+        function showSelectedReport() {
+            displaySavedReport();
+        }
+
+
+        // Initial load
+        window.onload = () => {
+            loadTable(); // Load the current week's data or an empty table
+            updateReportSelect(); // Populate the report select dropdown
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,104 @@
+        body {
+            background: linear-gradient(135deg, #225d97, #6f5488);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            min-height: 100vh;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        #dateTime {
+            background-color: #c1c4fc;
+            color: black;
+            padding: 1% 0;
+            width: 50%;
+            margin: 0 auto;
+        }
+
+        .checkbox_style {
+            border: 1px solid #0d6efd47;
+            width: 30px;
+            height: 30px;
+            box-shadow: 0 0 0 .25rem #0d6efd47;
+        }
+
+        .checkbox_style:focus {
+            box-shadow: 0 0 0 .25rem rgba(13, 109, 253, 0.527) !important;
+        }
+
+        .note-text {
+            min-height: 1em;
+        }
+
+        .note-content.text-success {
+            color: green !important;
+        }
+
+        .note-content.text-danger {
+            color: red !important;
+        }
+
+        .mr_style {
+            margin-right: 50% !important;
+            padding: 0 !important;
+        }
+
+        .w_style {
+            min-width: 250px;
+        }
+
+        @media screen and (max-width: 890px) and (min-width: 320px) {
+            td.w_style {
+                max-width: 250px;
+                overflow-x: auto;
+                display: block;
+                white-space: nowrap;
+            }
+
+            td.w_style::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            td.w_style::-webkit-scrollbar-thumb {
+                background-color: #aaa;
+                border-radius: 10px;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+
+            #reportsSection,
+            #reportsSection * {
+                visibility: visible;
+            }
+
+            #reportsSection {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+
+            .print_style {
+                display: none !important;
+            }
+        }
