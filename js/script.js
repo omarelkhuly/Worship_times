@@ -347,23 +347,27 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 
+// مراقبة متى يمكن عرض خيار التثبيت
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // منع المتصفح من عرض مربع التثبيت مباشرة
     deferredPrompt = e;
-    installBtn.style.display = 'inline-block';
-});
+    installBtn.style.display = 'inline-block'; // إظهار الزر
 
-installBtn.addEventListener('click', () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(choice => {
-            if (choice.outcome === 'accepted') {
-                console.log("✅ تم التثبيت");
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt(); // إظهار مربع التثبيت
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                console.log('✅ تم تثبيت التطبيق');
+            } else {
+                console.log('❌ تم رفض التثبيت');
             }
+
             deferredPrompt = null;
-            installBtn.style.display = 'none';
-        });
-    }
+            installBtn.style.display = 'none'; // إخفاء الزر بعد الاستخدام
+        }
+    });
 });
 
 
