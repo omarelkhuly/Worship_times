@@ -1,16 +1,21 @@
 {
-  "name": "جدول التوتر الأسبوعي",
-  "short_name": "جدول التوتر",
-  "start_url": "./",
+  "name": "مخطط العبادة الأسبوعي",
+  "short_name": "العبادة",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#8ec5fc",
+  "theme_color": "#2c3e50",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "images/favicon.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
     }
   ]
 }

@@ -116,7 +116,11 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        #reportsList .btn{
+        #reportsList .btn {
             margin: 0 auto;
             text-align: center;
+        }
+
+        #installBtn {
+            display: none;
         }

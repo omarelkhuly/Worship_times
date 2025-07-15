@@ -4,6 +4,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icon-192.png">
     <title>
         المخطط العبادي الأسبوعي</title>
     <link rel="icon" type="image/png" href="images/favicon.png" />
@@ -30,6 +35,7 @@
             <button class="btn btn-success" onclick="saveWeek()">
                 <i class="bi bi-save"></i> حفظ الأسبوع
             </button>
+            <button id="installBtn" class="btn btn-primary d-none">📲 أضف التطبيق إلى الهاتف</button>
         </div>
         <div class="d-flex justify-content-center flex-wrap gap-2 mb-4 no-print">
             <select class="form-select w-auto" id="reportSelect" onchange="displaySavedReport()">
@@ -72,6 +78,9 @@
                 <button class="btn btn-danger print_style" onclick="clearAllReports()">حذف جميع التقارير</button>
             </div>
         </div>
+    </div>
+
+    <div id="report-section">
     </div>
 
     <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">

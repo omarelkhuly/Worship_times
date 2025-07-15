@@ -1,7 +1,7 @@
 self.addEventListener('install', event => {
-  self.skipWaiting();
+    console.log('🔧 Service Worker تم تثبيته');
 });
 
-self.addEventListener('fetch', function (event) {
-  // Allow all requests to go through
+self.addEventListener('fetch', event => {
+    // يمكن إضافة كاش هنا لاحقًا إذا أردت دعم العمل بدون إنترنت
 });

@@ -312,7 +312,7 @@ function displaySavedReport() {
 
 function printReport() {
     const reportContent = document.getElementById('reportsList').innerHTML; // استخدم reportsList بدل report-section
-    const printWindow = window.open('', '', 'width=900,height=700');
+    const printWindow = window.open();
 
     printWindow.document.write(`
         <html dir="rtl">
@@ -337,6 +337,34 @@ function printReport() {
     printWindow.close();
 }
 
+
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('service-worker.js')
+        .then(() => console.log('✅ Service Worker مسجل'))
+        .catch(error => console.error('❌ فشل التسجيل:', error));
+}
+
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.style.display = 'inline-block';
+});
+
+installBtn.addEventListener('click', () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(choice => {
+            if (choice.outcome === 'accepted') {
+                console.log("✅ تم التثبيت");
+            }
+            deferredPrompt = null;
+            installBtn.style.display = 'none';
+        });
+    }
+});
 
 
 // Function to show the selected report (called by button click)
