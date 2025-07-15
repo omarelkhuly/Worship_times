@@ -349,26 +349,32 @@ const installBtn = document.getElementById('installBtn');
 
 // مراقبة متى يمكن عرض خيار التثبيت
 window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); // منع المتصفح من عرض مربع التثبيت مباشرة
+    e.preventDefault();
     deferredPrompt = e;
-    installBtn.style.display = 'inline-block'; // إظهار الزر
 
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt(); // إظهار مربع التثبيت
-            const { outcome } = await deferredPrompt.userChoice;
-
-            if (outcome === 'accepted') {
-                console.log('✅ تم تثبيت التطبيق');
-            } else {
-                console.log('❌ تم رفض التثبيت');
-            }
-
-            deferredPrompt = null;
-            installBtn.style.display = 'none'; // إخفاء الزر بعد الاستخدام
-        }
-    });
+    // لو المستخدم رفض قبل كده ما نظهرش الزر
+    if (!localStorage.getItem("installDismissed")) {
+        installBtn.style.display = "inline-block";
+    }
 });
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            console.log("تم التثبيت ✅");
+        } else {
+            console.log("تم الرفض ❌");
+            localStorage.setItem("installDismissed", "yes"); // تخزين حالة الرفض
+        }
+
+        installBtn.style.display = "none";
+        deferredPrompt = null;
+    }
+});
+
 
 
 // Function to show the selected report (called by button click)
