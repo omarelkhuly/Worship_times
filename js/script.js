@@ -275,7 +275,7 @@ function displaySavedReport() {
         reportDiv.innerHTML = `<h5 class="card-title text-primary">تقرير الأسبوع بتاريخ: ${selectedReport.date}</h5>`;
 
         const reportTable = document.createElement("table");
-        reportTable.classList.add("table", "table-bordered", "table-sm", "table-responsive");
+        reportTable.classList.add("table", "table-bordered", "table-sm");
         let tableHTML = `
           <thead>
             <tr>
@@ -305,9 +305,6 @@ function displaySavedReport() {
         reportDiv.appendChild(reportTable);
         reportsList.appendChild(reportDiv);
 
-        // ✅ نسخ المحتوى إلى منطقة الطباعة
-        document.getElementById("report-section").innerHTML = reportDiv.outerHTML;
-
         document.getElementById("resultsContainer").style.display = "block";
     }
 }
@@ -324,9 +321,6 @@ function printReport() {
             <link rel="stylesheet" href="style.css">
             <style>
                 body { font-family: Arial, sans-serif; direction: rtl; padding: 20px; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-                th { background-color: #f2f2f2; }
                 .text-muted { color: #6c757d; font-size: 0.85rem; }
                 .no-print { display: none !important; } /* إخفاء أزرار الحذف */
             </style>
