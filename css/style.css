@@ -86,19 +86,25 @@
                 visibility: hidden;
             }
 
-            #reportsSection,
-            #reportsSection * {
+            #report-section,
+            #report-section * {
                 visibility: visible;
             }
 
-            #reportsSection {
+            #report-section {
                 position: absolute;
+                right: 0;
                 top: 0;
-                left: 0;
                 width: 100%;
+                padding: 20px;
+                direction: rtl;
             }
 
-            .print_style {
-                display: none !important;
+
+
+            textarea {
+                border: none;
+                resize: none;
+                overflow: hidden;
             }
         }
