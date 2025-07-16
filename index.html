@@ -25,6 +25,7 @@
             <i class="fas fa-mosque text-primary"></i>
             المخطط العبادي الأسبوعي
         </h2>
+        <p class="text-center mb-4" id="dateTime"></p>
         <div class="d-flex justify-content-center flex-wrap gap-2 mb-4 no-print">
             <button class="btn btn-danger" onclick="startNewWeek()">
                 <i class="bi bi-arrow-clockwise"></i> بدء أسبوع جديد
@@ -35,7 +36,7 @@
             <button class="btn btn-success" onclick="saveWeek()">
                 <i class="bi bi-save"></i> حفظ الأسبوع
             </button>
-            <button id="installBtn" class="btn btn-success d-md-none mt-3" style="display: none;">
+            <button id="installBtn" class="btn btn-success d-md-none mt-3">
                 📲 أضف التطبيق إلى الهاتف
             </button>
         </div>
@@ -81,8 +82,26 @@
             </div>
         </div>
     </div>
-
-    <div id="report-section">
+    <div class="modal fade" id="installModal" tabindex="-1" aria-labelledby="installModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-center">
+                <div class="modal-header">
+                    <h5 class="modal-title w-100" id="installModalLabel">📲 كيفية تثبيت التطبيق</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="إغلاق"></button>
+                </div>
+                <div class="modal-body">
+                    <p>لإضافة التطبيق إلى الشاشة الرئيسية:</p>
+                    <ol class="text-start">
+                        <li>اضغط على قائمة الخيارات (⋮) في متصفحك.</li>
+                        <li>اختر <strong>"إضافة إلى الشاشة الرئيسية"</strong> أو <strong>"Install App"</strong>.</li>
+                    </ol>
+                    <p>ثم اتبع التعليمات الظاهرة.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">تم</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="modal fade" id="noteModal" tabindex="-1" aria-labelledby="noteModalLabel" aria-hidden="true">

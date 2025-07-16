@@ -138,6 +138,19 @@ function showResults() {
     displayAllReports();
 }
 
+function showDateTime() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'مساءً' : 'صباحًا';
+    hours = hours % 12 || 12;
+    const time = `${hours}:${minutes} ${ampm}`;
+    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+    const dateStr = `${days[now.getDay()]} ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()} - ${time}`;
+    document.getElementById("dateTime").textContent = dateStr;
+}
+
 // Function to start a new week (clear UI, keep localStorage data)
 function startNewWeek() {
     if (confirm("هل أنت متأكد أنك تريد بدء أسبوع جديد؟ سيتم مسح البيانات من الواجهة الحالية فقط.")) {
@@ -347,15 +360,13 @@ if ('serviceWorker' in navigator) {
 let deferredPrompt;
 const installBtn = document.getElementById('installBtn');
 
-// مراقبة متى يمكن عرض خيار التثبيت
+// زر التثبيت يظهر دائماً
+installBtn.style.display = "inline-block";
+
+// حدث beforeinstallprompt - إن توفر
 window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt = e;
-
-    // لو المستخدم رفض قبل كده ما نظهرش الزر
-    if (!localStorage.getItem("installDismissed")) {
-        installBtn.style.display = "inline-block";
-    }
 });
 
 installBtn.addEventListener('click', async () => {
@@ -367,11 +378,13 @@ installBtn.addEventListener('click', async () => {
             console.log("تم التثبيت ✅");
         } else {
             console.log("تم الرفض ❌");
-            localStorage.setItem("installDismissed", "yes"); // تخزين حالة الرفض
         }
 
-        installBtn.style.display = "none";
         deferredPrompt = null;
+    } else {
+        // عرض المودال إذا لم يكن beforeinstallprompt متاح
+        const installModal = new bootstrap.Modal(document.getElementById('installModal'));
+        installModal.show();
     }
 });
 
@@ -388,3 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadTable(); // Load the current week's data or an empty table
     updateReportSelect(); // Populate the report select dropdown
 });
+
+showDateTime();
+setInterval(showDateTime, 1000);
